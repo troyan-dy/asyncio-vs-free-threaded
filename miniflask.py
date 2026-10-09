@@ -1,5 +1,4 @@
-"""PROTOTYPE. Flask-like sync micro-framework over a pluggable runtime (gort.GreenletRuntime or
-rt_threads.ThreadRuntime). One API for handlers AND background work:
+"""PROTOTYPE. Flask-like sync micro-framework over a pluggable runtime (rt_threads.ThreadRuntime). One API for handlers AND background work:
 
     app = App(rt)
 
@@ -12,8 +11,7 @@ rt_threads.ThreadRuntime). One API for handlers AND background work:
     @app.get("/quote")       # request handler: plain sync function
     def quote(req) -> bytes: ...
 
-Background tasks and handlers are ordinary `def`s; the runtime decides whether a task is a greenlet
-on a hub or an OS thread. Shared state is published by attribute assignment of immutable snapshots.
+Background tasks and handlers are ordinary `def`s; the runtime runs each task in an OS thread. Shared state is published by attribute assignment of immutable snapshots.
 """
 
 from __future__ import annotations

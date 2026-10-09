@@ -4,8 +4,7 @@
 и с фоновыми задачами, запущенный в разных моделях конкурентности на обычной и free-threaded сборках
 CPython 3.14, под одинаковой нагрузкой в Docker с лимитом 4 CPU.
 
-Главный отчёт: **[RESULTS.md](RESULTS.md)**. Промежуточные эксперименты с greenlet-рантаймом:
-[docs/01-greenlet-runtime.md](docs/01-greenlet-runtime.md), [docs/02-sync-http-greenlet.md](docs/02-sync-http-greenlet.md).
+Отчёт с полными таблицами и оговорками: **[RESULTS.md](RESULTS.md)**.
 
 ## Что измеряется
 
@@ -58,11 +57,6 @@ docker rm -f backends   # бэкенды остаются запущенными
 
 Воспроизвести находку про TCP_NODELAY: `./probe_nodelay.sh`.
 
-Без Docker (эксперименты 1–2 из `docs/`, macOS/Linux, нужен [uv](https://docs.astral.sh/uv/)):
-`./setup_local.sh`, затем `./run_matrix.sh` (микробенчмарк greenlet-рантайма) или `./run_http_matrix.sh`
-(HTTP-сервис на greenlet-hub'ах, OS-потоках и Flask). Эти скрипты запускают всё на хосте и чувствительны
-к железу, на macOS без балансировки `SO_REUSEPORT`.
-
 ## Главные результаты
 
 Лёгкий профиль (база 1 мс + 0.6 мс CPU), 64 соединения, лучший из прогонов, 4 CPU:
@@ -106,13 +100,11 @@ docker rm -f backends   # бэкенды остаются запущенными
 | файл | назначение |
 |---|---|
 | `fastapi_app.py`, `uvicorn_serve.py` | сервис на FastAPI и лаунчер (loops в потоках / процессы) |
-| `demo_app.py`, `miniflask.py`, `rt_threads.py`, `gort.py` | логика сервиса, мини-фреймворк и два рантайма (OS-потоки, greenlet-hub'ы) для sync-вариантов |
-| `flask_serve.py`, `serve.py` | контрольные sync-серверы (Flask + waitress, поток на соединение) |
+| `demo_app.py`, `miniflask.py`, `rt_threads.py` | логика хендлера и фоновых задач, пул соединений на блокирующих сокетах для sync-варианта |
 | `backends.py`, `echo_server.py` | заглушки: «база» с задержкой, push-стрим, писатель конфига |
 | `loadgen.py`, `print_results.py` | генератор нагрузки с перцентилями и проверкой свежести стейта; печать таблиц |
 | `run_docker_matrix.sh`, `docker_bench_one.sh`, `Dockerfile` | запуск в Docker |
 | `nodelay_check.py`, `stall_timing.py`, `probe_nodelay.sh` | диагностика TCP_NODELAY |
-| `baseline_min.py`, `bench.py`, `run_matrix.sh`, `run_http_matrix.sh`, `setup_local.sh` | локальные микробенчмарки без Docker |
 | `results/` | сырые результаты всех прогонов (JSON lines + sidecar с памятью и CPU контейнера) |
 
 Код экспериментальный: без тестов и обработки ошибок сверх необходимого для запуска.

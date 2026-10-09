@@ -1,9 +1,8 @@
-# Эксперимент 3: async (FastAPI) против sync, GIL против free-threaded, Docker с лимитом 4 CPU
+# async (FastAPI) против sync, GIL против free-threaded, Docker с лимитом 4 CPU
 
 Дата: 2026-10-09. Docker Desktop (Linux VM, 10 vCPU, cgroup v2), сервер в контейнере с `--cpus 4`,
 бэкенды `--cpus 2`, нагрузочный генератор `--cpus 3` на free-threaded сборке (64 потока, реально
-параллельные). Python 3.14.8 и 3.14.8t (uv), FastAPI 0.143, uvicorn 0.54, uvloop 0.23, httptools 0.8,
-Flask 3.1, waitress. После импорта всего стека на 3.14t GIL остаётся выключенным (проверка в Dockerfile).
+параллельные). Python 3.14.8 и 3.14.8t (uv), FastAPI 0.143, uvicorn 0.54, uvloop 0.23, httptools 0.8. После импорта всего стека на 3.14t GIL остаётся выключенным (проверка в Dockerfile).
 
 Нагрузка: 64 keep-alive соединения, 10 с. Хендлер `/quote`: поход в «базу» (echo с задержкой 1 мс через
 пул) плюс ~0.6 мс чистого Python CPU. Фоном: перечитывание конфига, разбор push-стрима, ротация пула
@@ -11,8 +10,9 @@ Flask 3.1, waitress. После импорта всего стека на 3.14t 
 
 Код: `fastapi_app.py` (async- и `def`-варианты, CPU inline или через `to_thread`), `uvicorn_serve.py`
 (`--loops N`: N loop'ов в потоках одного процесса, `--workers N`: N процессов; каждому свой
-`SO_REUSEPORT`-сокет), `run_docker_matrix.sh`,
-`docker_bench_one.sh`. Запуск: `./run_docker_matrix.sh`.
+`SO_REUSEPORT`-сокет), `demo_app.py` + `miniflask.py` + `rt_threads.py` (логика хендлера и фоновых задач,
+пул на блокирующих сокетах для sync-варианта), `run_docker_matrix.sh`, `docker_bench_one.sh`.
+Запуск: `./run_docker_matrix.sh`.
 
 ## Результаты (лучший из прогонов; ключевые строки по 3 прогона, разброс до ±20 %)
 
@@ -32,9 +32,7 @@ Flask 3.1, waitress. После импорта всего стека на 3.14t 
 | async 4 loops + to_thread | 1 | 2 510 | 13 | 92 | 202 MB | 405 % |
 | sync FastAPI `def` (64 потока) | 3 | 2 895 | 12 | 71 | 347 MB | 408 % |
 
-Строки с `--loop asyncio --http h11` из таблицы исключены, см. «Побочная находка». Контрольные sync-прогоны
-вне FastAPI (Flask + waitress, свой сервер с потоком на соединение) дали те же цифры: 1.15–1.43k на GIL,
-2.3–2.9k на free-threaded, то есть sync-результат от фреймворка не зависит; в таблицу они не включены.
+Строки с `--loop asyncio --http h11` из таблицы исключены, см. «Побочная находка».
 
 ## Выводы
 

@@ -1,4 +1,4 @@
-"""PROTOTYPE. Same interface as gort.GreenletRuntime, but plain OS threads and blocking sockets."""
+"""PROTOTYPE. Runtime for the sync variant: plain OS threads and blocking sockets."""
 
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ class _Result:
 
 
 class ThreadQueue(queue.Queue):
-    """queue.Queue with Chan's put/get names (already the same) and close()."""
+    """queue.Queue with a no-op close()."""
 
     def close(self) -> None:
         pass

@@ -1,7 +1,7 @@
 """PROTOTYPE. HTTP load generator: C keep-alive connections for D seconds, reports rps, latency
 percentiles and state freshness (did cfg_version / stream_seq / pool_gen advance during the run?).
 Run it with the regular build in a separate process.
-python loadgen.py --port 8080 --conc 64 --duration 10 --label "ft greenlet 4"
+python loadgen.py --port 8080 --conc 64 --duration 10 --label "ft async 4 loops"
 """
 
 import argparse
