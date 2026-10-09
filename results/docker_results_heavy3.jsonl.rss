@@ -1,0 +1,14 @@
+{"label": "ft sync def 64 thr, no permits", "server_mem": "345.9MiB", "server_cpu": "408.33%"}
+{"label": "ft sync def 64 thr, cpu permits 4", "server_mem": "346.3MiB", "server_cpu": "400.74%"}
+{"label": "ft async 1 loop + to_thread(default 14)", "server_mem": "104.4MiB", "server_cpu": "409.74%"}
+{"label": "ft async 1 loop + to_thread(4)", "server_mem": "83.84MiB", "server_cpu": "400.34%"}
+{"label": "ft async 4 loops (threads)", "server_mem": "95.61MiB", "server_cpu": "338.47%"}
+{"label": "ft async 4 procs", "server_mem": "237MiB", "server_cpu": "299.14%"}
+{"label": "gil async 4 procs", "server_mem": "164.1MiB", "server_cpu": "324.31%"}
+{"label": "ft sync def 64 thr, no permits", "server_mem": "349.1MiB", "server_cpu": "414.36%"}
+{"label": "ft sync def 64 thr, cpu permits 4", "server_mem": "345.9MiB", "server_cpu": "399.77%"}
+{"label": "ft async 1 loop + to_thread(default 14)", "server_mem": "104.1MiB", "server_cpu": "405.62%"}
+{"label": "ft async 1 loop + to_thread(4)", "server_mem": "84.3MiB", "server_cpu": "395.71%"}
+{"label": "ft async 4 loops (threads)", "server_mem": "99.59MiB", "server_cpu": "344.96%"}
+{"label": "ft async 4 procs", "server_mem": "239.8MiB", "server_cpu": "299.96%"}
+{"label": "gil async 4 procs", "server_mem": "164.2MiB", "server_cpu": "326.76%"}

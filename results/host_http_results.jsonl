@@ -1,0 +1,10 @@
+{"label": "gil greenlet 1", "conc": 64, "rps": 1450, "p50_ms": 43.51, "p95_ms": 68.24, "p99_ms": 77.14, "max_ms": 297.5, "errors": 0, "cfg_version": [2, 6], "stream_seq": [296, 1101], "pool_gen": [1, 4]}
+{"label": "gil greenlet 4", "conc": 64, "rps": 1359, "p50_ms": 29.88, "p95_ms": 138.43, "p99_ms": 245.4, "max_ms": 651.9, "errors": 0, "cfg_version": [8, 13], "stream_seq": [1386, 2311], "pool_gen": [1, 4]}
+{"label": "gil greenlet 8", "conc": 64, "rps": 1407, "p50_ms": 31.46, "p95_ms": 142.33, "p99_ms": 246.15, "max_ms": 609.2, "errors": 0, "cfg_version": [14, 19], "stream_seq": [2480, 3408], "pool_gen": [1, 3]}
+{"label": "gil threads", "conc": 64, "rps": 1442, "p50_ms": 37.76, "p95_ms": 91.88, "p99_ms": 137.45, "max_ms": 886.0, "errors": 0, "cfg_version": [20, 25], "stream_seq": [3589, 4520], "pool_gen": [1, 4]}
+{"label": "gil flask", "conc": 64, "rps": 1175, "p50_ms": 46.68, "p95_ms": 96.34, "p99_ms": 144.12, "max_ms": 1167.0, "errors": 0, "cfg_version": [26, 31], "stream_seq": [4687, 5608], "pool_gen": [1, 4]}
+{"label": "ft greenlet 1", "conc": 64, "rps": 1444, "p50_ms": 41.27, "p95_ms": 67.41, "p99_ms": 153.23, "max_ms": 382.1, "errors": 0, "cfg_version": [31, 36], "stream_seq": [5777, 6684], "pool_gen": [1, 4]}
+{"label": "ft greenlet 4", "conc": 64, "rps": 3670, "p50_ms": 13.61, "p95_ms": 40.61, "p99_ms": 72.09, "max_ms": 296.7, "errors": 0, "cfg_version": [37, 42], "stream_seq": [6862, 7784], "pool_gen": [1, 4]}
+{"label": "ft greenlet 8", "conc": 64, "rps": 4520, "p50_ms": 11.7, "p95_ms": 31.39, "p99_ms": 50.27, "max_ms": 242.9, "errors": 0, "cfg_version": [43, 48], "stream_seq": [7952, 8861], "pool_gen": [1, 4]}
+{"label": "ft threads", "conc": 64, "rps": 6640, "p50_ms": 3.42, "p95_ms": 46.86, "p99_ms": 95.31, "max_ms": 268.2, "errors": 0, "cfg_version": [49, 54], "stream_seq": [9029, 9951], "pool_gen": [1, 4]}
+{"label": "ft flask", "conc": 64, "rps": 4925, "p50_ms": 10.84, "p95_ms": 26.72, "p99_ms": 48.92, "max_ms": 194.4, "errors": 0, "cfg_version": [55, 60], "stream_seq": [10118, 11037], "pool_gen": [1, 4]}

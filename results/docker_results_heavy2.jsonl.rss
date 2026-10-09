@@ -1,0 +1,6 @@
+{"label": "ft sync def 64 thr, cpu permits 4", "server_mem": "345.9MiB", "server_cpu": "415.51%"}
+{"label": "ft sync def 64 thr, cpu permits 8", "server_mem": "346.2MiB", "server_cpu": "422.81%"}
+{"label": "ft sync def 64 thr, no permits", "server_mem": "349MiB", "server_cpu": "409.22%"}
+{"label": "ft async 1 loop + to_thread(4)", "server_mem": "83.12MiB", "server_cpu": "396.02%"}
+{"label": "ft async 4 loops + to_thread(1 each)", "server_mem": "109MiB", "server_cpu": "398.17%"}
+{"label": "gil sync def 64 thr, cpu permits 4", "server_mem": "56.44MiB", "server_cpu": "101.93%"}

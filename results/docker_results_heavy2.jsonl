@@ -1,0 +1,6 @@
+{"label": "ft sync def 64 thr, cpu permits 4", "conc": 64, "rps": 621, "p50_ms": 96.92, "p95_ms": 176.49, "p99_ms": 225.45, "max_ms": 405.4, "errors": 0, "cfg_version": [3, 8], "stream_seq": [394, 1278], "pool_gen": [1, 5]}
+{"label": "ft sync def 64 thr, cpu permits 8", "conc": 64, "rps": 473, "p50_ms": 113.71, "p95_ms": 267.23, "p99_ms": 384.33, "max_ms": 731.7, "errors": 0, "cfg_version": [10, 13], "stream_seq": [1647, 2260], "pool_gen": [2, 4]}
+{"label": "ft sync def 64 thr, no permits", "conc": 64, "rps": 576, "p50_ms": 102.52, "p95_ms": 191.53, "p99_ms": 217.14, "max_ms": 417.5, "errors": 0, "cfg_version": [16, 22], "stream_seq": [2790, 3666], "pool_gen": [1, 4]}
+{"label": "ft async 1 loop + to_thread(4)", "conc": 64, "rps": 676, "p50_ms": 92.67, "p95_ms": 113.14, "p99_ms": 126.45, "max_ms": 145.7, "errors": 0, "cfg_version": [23, 28], "stream_seq": [3922, 4766], "pool_gen": [1, 4]}
+{"label": "ft async 4 loops + to_thread(1 each)", "conc": 64, "rps": 678, "p50_ms": 78.4, "p95_ms": 178.01, "p99_ms": 205.61, "max_ms": 273.9, "errors": 0, "cfg_version": [30, 34], "stream_seq": [5084, 5930], "pool_gen": [1, 4]}
+{"label": "gil sync def 64 thr, cpu permits 4", "conc": 64, "rps": 284, "p50_ms": 217.89, "p95_ms": 349.65, "p99_ms": 433.84, "max_ms": 528.7, "errors": 0, "cfg_version": [37, 37], "stream_seq": [6324, 6387], "pool_gen": [1, 1]}

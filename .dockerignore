@@ -1,0 +1,6 @@
+.venv-*
+*.log
+*.jsonl
+*.jsonl.rss
+shared/
+__pycache__/

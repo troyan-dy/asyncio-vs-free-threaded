@@ -1,0 +1,10 @@
+{"label": "gil greenlet 1", "server_rss_mb": 17}
+{"label": "gil greenlet 4", "server_rss_mb": 17}
+{"label": "gil greenlet 8", "server_rss_mb": 20}
+{"label": "gil threads", "server_rss_mb": 21}
+{"label": "gil flask", "server_rss_mb": 35}
+{"label": "ft greenlet 1", "server_rss_mb": 20}
+{"label": "ft greenlet 4", "server_rss_mb": 25}
+{"label": "ft greenlet 8", "server_rss_mb": 27}
+{"label": "ft threads", "server_rss_mb": 75}
+{"label": "ft flask", "server_rss_mb": 125}

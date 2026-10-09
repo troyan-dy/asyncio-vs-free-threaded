@@ -1,0 +1,18 @@
+{"label": "gil async 1 loop", "server_mem": "48.65MiB", "server_cpu": "99.98%"}
+{"label": "gil async 4 procs", "server_mem": "164.9MiB", "server_cpu": "428.10%"}
+{"label": "gil sync fastapi def (64 thr)", "server_mem": "55.92MiB", "server_cpu": "114.34%"}
+{"label": "ft async 1 loop", "server_mem": "76.32MiB", "server_cpu": "99.79%"}
+{"label": "ft async 4 loops (threads)", "server_mem": "107.8MiB", "server_cpu": "400.20%"}
+{"label": "ft async 4 procs", "server_mem": "236.3MiB", "server_cpu": "413.12%"}
+{"label": "ft async 1 loop + to_thread", "server_mem": "103.8MiB", "server_cpu": "403.34%"}
+{"label": "ft sync fastapi def (64 thr)", "server_mem": "348.2MiB", "server_cpu": "401.30%"}
+{"label": "ft sync thread per conn", "server_mem": "299.4MiB", "server_cpu": "412.69%"}
+{"label": "gil async 1 loop", "server_mem": "49.43MiB", "server_cpu": "99.41%"}
+{"label": "gil async 4 procs", "server_mem": "165.9MiB", "server_cpu": "407.15%"}
+{"label": "gil sync fastapi def (64 thr)", "server_mem": "56.16MiB", "server_cpu": "104.22%"}
+{"label": "ft async 1 loop", "server_mem": "76.67MiB", "server_cpu": "100.27%"}
+{"label": "ft async 4 loops (threads)", "server_mem": "94.04MiB", "server_cpu": "404.20%"}
+{"label": "ft async 4 procs", "server_mem": "237.7MiB", "server_cpu": "402.64%"}
+{"label": "ft async 1 loop + to_thread", "server_mem": "101.4MiB", "server_cpu": "401.96%"}
+{"label": "ft sync fastapi def (64 thr)", "server_mem": "348.1MiB", "server_cpu": "401.78%"}
+{"label": "ft sync thread per conn", "server_mem": "299.3MiB", "server_cpu": "404.67%"}

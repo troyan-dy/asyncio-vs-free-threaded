@@ -1,0 +1,22 @@
+{"label": "gil async 1 loop", "server_mem": "48.52MiB", "server_cpu": "99.82%"}
+{"label": "gil async 4 loops (threads)", "server_mem": "53MiB", "server_cpu": "103.64%"}
+{"label": "gil async 4 procs", "server_mem": "165MiB", "server_cpu": "403.44%"}
+{"label": "gil async 1 loop + to_thread", "server_mem": "49.59MiB", "server_cpu": "99.38%"}
+{"label": "gil async 4 loops + to_thread", "server_mem": "53.98MiB", "server_cpu": "100.47%"}
+{"label": "gil async 1 loop asyncio/h11", "server_mem": "48.72MiB", "server_cpu": "98.26%"}
+{"label": "gil async 4 loops asyncio/h11", "server_mem": "50.79MiB", "server_cpu": "105.86%"}
+{"label": "gil async 4 procs asyncio/h11", "server_mem": "166MiB", "server_cpu": "174.20%"}
+{"label": "gil sync fastapi def (64 thr)", "server_mem": "56.88MiB", "server_cpu": "104.14%"}
+{"label": "gil sync flask waitress (64 thr)", "server_mem": "37.96MiB", "server_cpu": "128.11%"}
+{"label": "gil sync thread per conn", "server_mem": "23.88MiB", "server_cpu": "110.61%"}
+{"label": "ft async 1 loop", "server_mem": "76.4MiB", "server_cpu": "99.98%"}
+{"label": "ft async 4 loops (threads)", "server_mem": "101.1MiB", "server_cpu": "402.19%"}
+{"label": "ft async 4 procs", "server_mem": "241.4MiB", "server_cpu": "407.06%"}
+{"label": "ft async 1 loop + to_thread", "server_mem": "102.1MiB", "server_cpu": "404.01%"}
+{"label": "ft async 4 loops + to_thread", "server_mem": "202.2MiB", "server_cpu": "404.96%"}
+{"label": "ft async 1 loop asyncio/h11", "server_mem": "87.39MiB", "server_cpu": "100.28%"}
+{"label": "ft async 4 loops asyncio/h11", "server_mem": "125.4MiB", "server_cpu": "200.28%"}
+{"label": "ft async 4 procs asyncio/h11", "server_mem": "290.1MiB", "server_cpu": "176.44%"}
+{"label": "ft sync fastapi def (64 thr)", "server_mem": "347.4MiB", "server_cpu": "407.93%"}
+{"label": "ft sync flask waitress (64 thr)", "server_mem": "335MiB", "server_cpu": "407.56%"}
+{"label": "ft sync thread per conn", "server_mem": "299.4MiB", "server_cpu": "413.60%"}
