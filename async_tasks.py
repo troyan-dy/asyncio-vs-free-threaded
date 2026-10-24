@@ -40,8 +40,8 @@ async def reload_config() -> None:
 async def rotate_pools(pools: list[AsyncPool]) -> None:
     """Recreate every connection of the loop's pools."""
     for pool in pools:
-        # one pool at a time, as in the sync variant: the other pools keep serving requests (hot path)
-        await pool.rotate()  # noqa: WPS476
+        # one pool at a time, as in the sync variant (QuoteService.rotate_db_connections)
+        await pool.rotate()  # noqa: WPS476 - hot path: the other pools keep serving requests
 
 
 async def consume_stream() -> None:

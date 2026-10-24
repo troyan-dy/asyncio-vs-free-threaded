@@ -49,8 +49,8 @@ class AsyncPool:
     async def rotate(self) -> None:
         """Replace every connection, one at a time, and bump the generation."""
         for _ in range(POOL_SIZE):
-            # one connection at a time: the rest of the pool keeps serving requests (hot path)
-            await self._replace_one()  # noqa: WPS476
+            # sequential on purpose: gather() would take every connection out of the pool at once
+            await self._replace_one()  # noqa: WPS476 - hot path: the rest of the pool keeps serving requests
         self.generation += 1
 
     async def _replace_one(self) -> None:
