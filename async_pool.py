@@ -27,11 +27,9 @@ class AsyncPool:
         self.generation = 0
 
     async def open(self) -> None:
-        """Open POOL_SIZE connections."""
-        opening = (asyncio.open_connection(*self.addr) for _ in range(POOL_SIZE))
-        connections = await asyncio.gather(*opening)
-        for conn in connections:
-            self.idle.put_nowait(conn)
+        """Open POOL_SIZE connections, one after another."""
+        for _ in range(POOL_SIZE):
+            self.idle.put_nowait(await asyncio.open_connection(*self.addr))  # noqa: WPS476 - семантика бенчмарка: по одному, как в c7120b3
 
     @contextlib.asynccontextmanager
     async def acquire(self) -> AsyncIterator[Connection]:
@@ -68,7 +66,8 @@ def pools_for_current_loop() -> list[AsyncPool]:
 async def open_pools_for_current_loop() -> list[AsyncPool]:
     """Open one pool per DB port for the running event loop."""
     pools = [AsyncPool(addr) for addr in DB_ADDRS]
-    await asyncio.gather(*(pool.open() for pool in pools))
+    for pool in pools:
+        await pool.open()  # noqa: WPS476 - семантика бенчмарка: пулы открываются по очереди, как в c7120b3
     with _pools_lock:
         _pools[asyncio.get_running_loop()] = pools
     return pools
