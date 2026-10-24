@@ -59,6 +59,21 @@ docker rm -f backends   # бэкенды остаются запущенными
 
 Воспроизвести находку про TCP_NODELAY: `./probe_nodelay.sh`.
 
+### Линтер
+
+Код проверяется [wemake-python-styleguide](https://wemake-python-styleguide.readthedocs.io/) (настройки в
+`setup.cfg`, в CI это workflow `lint`). Dev-зависимости зафиксированы в `requirements-dev.txt`, после
+правки `requirements-dev.in` он перегенерируется так:
+`uv pip compile requirements-dev.in -o requirements-dev.txt --python-version 3.14 --universal`.
+
+```bash
+uv pip install -p .venv-gil/bin/python -r requirements-dev.txt
+.venv-gil/bin/flake8 . --select=WPS
+```
+
+Точечные `# noqa: WPSxxx` стоят только в горячем пути (хендлеры `/quote`, `cpu_work`, измерительный цикл
+`loadgen.py`, последовательная ротация пула), у каждого записана причина.
+
 ## Главные результаты
 
 Лёгкий профиль (база 1 мс + 0.6 мс CPU), 64 соединения, лучший из прогонов, 4 CPU:
@@ -95,19 +110,25 @@ docker rm -f backends   # бэкенды остаются запущенными
   задержку 40 мс между заголовками и телом ответа. uvloop не подвержен.
 
 Подробности, таблицы со всеми прогонами и оговорки в [RESULTS.md](RESULTS.md). Числа из VM Docker Desktop
-на Apple M2 Pro, разброс между прогонами до 20 %.
+на Apple M2 Pro, разброс между прогонами до 20 %. Они сняты до рефакторинга под wemake-python-styleguide
+(код на коммите `c7120b3`); после него ответы эндпоинтов те же, в горячем пути не добавилось вызовов,
+но полная матрица в Docker заново не прогонялась.
 
 ## Файлы
 
 | файл | назначение |
 |---|---|
-| `fastapi_app.py`, `uvicorn_serve.py` | сервис на FastAPI и лаунчер (loops в потоках / процессы) |
+| `fastapi_app.py`, `uvicorn_serve.py` | сервис на FastAPI (выбор варианта по `APP_SYNC`) и лаунчер (loops в потоках / процессы) |
+| `async_variant.py`, `async_pool.py`, `async_tasks.py` | `async def`-вариант: хендлер и lifespan, пул на asyncio streams по одному на event loop, фоновые задачи |
+| `sync_variant.py` | `def`-вариант: хендлер из `demo_app` в пуле потоков anyio |
 | `demo_app.py`, `miniflask.py`, `rt_threads.py` | логика хендлера и фоновых задач, пул соединений на блокирующих сокетах для sync-варианта |
-| `backends.py`, `echo_server.py` | заглушки: «база» с задержкой, push-стрим, писатель конфига |
-| `loadgen.py`, `print_results.py` | генератор нагрузки с перцентилями и проверкой свежести стейта; печать таблиц |
+| `backends.py`, `echo_server.py`, `backend_protocol.py` | заглушки: «база» с задержкой, push-стрим, писатель конфига; общие порты и формат сообщений |
+| `loadgen.py`, `loadgen_report.py`, `print_results.py` | генератор нагрузки с перцентилями и проверкой свежести стейта; печать таблиц |
 | `run_docker_matrix.sh`, `docker_bench_one.sh`, `Dockerfile` | запуск в Docker |
 | `requirements.in`, `requirements.txt` | зависимости и их зафиксированные версии (uv pip compile) |
+| `requirements-dev.in`, `requirements-dev.txt`, `setup.cfg` | линтер wemake-python-styleguide и его настройки |
 | `nodelay_check.py`, `stall_timing.py`, `probe_nodelay.sh` | диагностика TCP_NODELAY |
 | `results/` | сырые результаты всех прогонов (JSON lines + sidecar с памятью и CPU контейнера) |
 
-Код экспериментальный: без тестов и обработки ошибок сверх необходимого для запуска.
+Код экспериментальный: без тестов и обработки ошибок сверх необходимого для запуска. Стиль проверяет
+wemake-python-styleguide (см. «Линтер»).

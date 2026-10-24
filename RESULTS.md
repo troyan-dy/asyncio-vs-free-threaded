@@ -13,6 +13,8 @@
 `SO_REUSEPORT`-сокет), `demo_app.py` + `miniflask.py` + `rt_threads.py` (логика хендлера и фоновых задач,
 пул на блокирующих сокетах для sync-варианта), `run_docker_matrix.sh`, `docker_bench_one.sh`.
 Запуск: `./run_docker_matrix.sh`.
+Прогоны сделаны до рефакторинга под wemake-python-styleguide (коммит `c7120b3`); после него async- и
+`def`-варианты живут в `async_variant.py` и `sync_variant.py`, поведение эндпоинтов не менялось.
 
 ## Результаты (лучший из прогонов; ключевые строки по 3 прогона, разброс до ±20 %)
 
