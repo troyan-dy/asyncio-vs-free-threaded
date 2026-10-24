@@ -35,6 +35,8 @@ free-threaded сборка, 64 реально параллельных пото�
 
 Нужны Docker и bash. Образ собирает оба интерпретатора через uv (3.14 и 3.14t) и ставит зависимости,
 первая сборка занимает несколько минут.
+Версии пакетов зафиксированы в `requirements.txt`; после правки `requirements.in` он перегенерируется так:
+`uv pip compile requirements.in -o requirements.txt --python-version 3.14 --universal`.
 
 ```bash
 ./run_docker_matrix.sh                                  # лёгкий профиль: база 1 мс, 20k итераций
@@ -104,6 +106,7 @@ docker rm -f backends   # бэкенды остаются запущенными
 | `backends.py`, `echo_server.py` | заглушки: «база» с задержкой, push-стрим, писатель конфига |
 | `loadgen.py`, `print_results.py` | генератор нагрузки с перцентилями и проверкой свежести стейта; печать таблиц |
 | `run_docker_matrix.sh`, `docker_bench_one.sh`, `Dockerfile` | запуск в Docker |
+| `requirements.in`, `requirements.txt` | зависимости и их зафиксированные версии (uv pip compile) |
 | `nodelay_check.py`, `stall_timing.py`, `probe_nodelay.sh` | диагностика TCP_NODELAY |
 | `results/` | сырые результаты всех прогонов (JSON lines + sidecar с памятью и CPU контейнера) |
 
