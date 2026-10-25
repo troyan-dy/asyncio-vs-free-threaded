@@ -1,0 +1,23 @@
+name: lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  wps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # setup-uv publishes no floating major tags since v8, so the latest release is pinned
+      - uses: astral-sh/setup-uv@v10.3.2
+      - name: Install dev dependencies
+        run: |
+          uv venv -q -p 3.14 .venv-lint
+          uv pip install -q -p .venv-lint/bin/python -r requirements-dev.txt
+      - name: wemake-python-styleguide
+        run: .venv-lint/bin/flake8 . --select=WPS

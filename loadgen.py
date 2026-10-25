@@ -5,20 +5,36 @@ python loadgen.py --port 8080 --conc 64 --duration 10 --label "ft async 4 loops"
 """
 
 import argparse
+import contextlib
 import json
 import socket
 import sys
 import threading
 import time
 
+from loadgen_report import Sample, summarize
 
-def read_response(sock: socket.socket, buf: bytes) -> tuple[bytes, bytes, bool]:
-    while b"\r\n\r\n" not in buf:
-        chunk = sock.recv(65536)
+DEFAULT_PORT = 8080
+DEFAULT_CONC = 64
+RECV_CHUNK = 65536
+HEAD_END = b"\r\n\r\n"
+SYMBOLS = 10  # connection i asks for sym = i % SYMBOLS
+SAMPLE_FIRST = 2  # responses kept for the freshness check: the first ones ...
+SAMPLE_EVERY = 50  # ... and then every SAMPLE_EVERY-th
+RECONNECT_PAUSE = 0.05  # seconds
+REQUEST_ERRORS = (ConnectionError, OSError, json.JSONDecodeError)
+
+Addr = tuple[str, int]
+
+
+def read_response(sock: socket.socket, buf: bytes) -> tuple[bytes, bytes, bool]:  # noqa: WPS210, WPS231 - hot path
+    """Read one response: (body, bytes after it, server asked to close). Inline on purpose: once per request."""
+    while HEAD_END not in buf:
+        chunk = sock.recv(RECV_CHUNK)
         if not chunk:
             raise ConnectionError("closed")
         buf += chunk
-    head, _, rest = buf.partition(b"\r\n\r\n")
+    head, _, rest = buf.partition(HEAD_END)
     headers = head.lower()
     length = 0
     close = b"connection: close" in headers
@@ -26,95 +42,99 @@ def read_response(sock: socket.socket, buf: bytes) -> tuple[bytes, bytes, bool]:
         if line.startswith(b"content-length:"):
             length = int(line.split(b":")[1])
     while len(rest) < length:
-        chunk = sock.recv(65536)
+        chunk = sock.recv(RECV_CHUNK)
         if not chunk:
             raise ConnectionError("closed")
         rest += chunk
     return rest[:length], rest[length:], close
 
 
-HOST = "127.0.0.1"
+def _reopen(sock: socket.socket, addr: Addr) -> socket.socket:
+    """Replace a broken connection; an unconnected socket if connecting fails too."""
+    with contextlib.suppress(OSError):
+        sock.close()
+    try:
+        return socket.create_connection(addr)
+    except OSError:
+        time.sleep(RECONNECT_PAUSE)  # e.g. ephemeral port exhaustion; keep the thread alive
+        return socket.socket()
 
 
-def worker(idx: int, port: int, path: str, deadline: float, out: dict) -> None:
-    lat: list[float] = []
-    seen: list[dict] = []
-    errors = 0
-    req = f"GET {path}&sym={idx % 10} HTTP/1.1\r\nHost: x\r\n\r\n".encode()
-    sock = socket.create_connection((HOST, port))
-    buf = b""
-    while time.perf_counter() < deadline:
-        t0 = time.perf_counter()
-        try:
-            sock.sendall(req)
+class Client:
+    """One keep-alive connection that sends the same GET until the deadline."""
+
+    def __init__(self, idx: int, addr: Addr, path: str) -> None:
+        """Prepare connection ``idx``; it asks for sym = idx % SYMBOLS."""
+        sym = idx % SYMBOLS
+        self.addr = addr
+        self.request = f"GET {path}&sym={sym} HTTP/1.1\r\nHost: x\r\n\r\n".encode()
+        self.latencies: list[float] = []
+        self.samples: list[Sample] = []
+        self.errors = 0
+
+    def run(self, deadline: float) -> None:
+        """Thread body: send requests until ``deadline`` (perf_counter), reconnect after a failure."""
+        self.sock = socket.create_connection(self.addr)
+        while time.perf_counter() < deadline:
+            try:
+                self._requests_until_error(deadline)
+            except REQUEST_ERRORS:
+                self.errors += 1
+                self.sock = _reopen(self.sock, self.addr)
+        self.sock.close()
+
+    def _requests_until_error(self, deadline: float) -> None:  # noqa: WPS210 - hot path: locals, not attributes
+        """The measured loop: per request only the socket I/O and the bookkeeping."""
+        sock, request = self.sock, self.request
+        latencies, samples = self.latencies, self.samples
+        buf = b""
+        while time.perf_counter() < deadline:
+            started = time.perf_counter()
+            sock.sendall(request)
             body, buf, close = read_response(sock, buf)
-            lat.append(time.perf_counter() - t0)
-            if len(seen) < 2 or len(lat) % 50 == 0:
-                seen.append(json.loads(body))
+            latencies.append(time.perf_counter() - started)
+            if len(samples) < SAMPLE_FIRST or len(latencies) % SAMPLE_EVERY == 0:
+                samples.append(json.loads(body))
             if close:
                 sock.close()
-                sock = socket.create_connection((HOST, port))
+                sock = socket.create_connection(self.addr)
+                self.sock = sock
                 buf = b""
-        except (ConnectionError, OSError, json.JSONDecodeError):
-            errors += 1
-            try:
-                sock.close()
-            except OSError:
-                pass
-            try:
-                sock = socket.create_connection((HOST, port))
-            except OSError:
-                time.sleep(0.05)  # e.g. ephemeral port exhaustion; keep the thread alive
-                sock = socket.socket()
-            buf = b""
-    sock.close()
-    out[idx] = (lat, seen, errors)
+
+
+def _run(clients: list[Client], duration: float) -> float:
+    """Run every client in its own thread for ``duration`` seconds; return the elapsed time."""
+    deadline = time.perf_counter() + duration
+    threads = [threading.Thread(target=client.run, args=(deadline,)) for client in clients]
+    started = time.perf_counter()
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    return time.perf_counter() - started
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT)
+    parser.add_argument("--conc", type=int, default=DEFAULT_CONC)
+    parser.add_argument("--duration", type=float, default=10)
+    parser.add_argument("--path", default="/quote?x=1")
+    parser.add_argument("--label", default="")
+    return parser.parse_args()
 
 
 def main() -> None:
-    p = argparse.ArgumentParser()
-    p.add_argument("--host", default="127.0.0.1")
-    p.add_argument("--port", type=int, default=8080)
-    p.add_argument("--conc", type=int, default=64)
-    p.add_argument("--duration", type=float, default=10)
-    p.add_argument("--path", default="/quote?x=1")
-    p.add_argument("--label", default="")
-    a = p.parse_args()
-    global HOST  # noqa: PLW0603
-    HOST = a.host
-
-    deadline = time.perf_counter() + a.duration
-    out: dict = {}
-    ths = [threading.Thread(target=worker, args=(i, a.port, a.path, deadline, out)) for i in range(a.conc)]
-    t0 = time.perf_counter()
-    for t in ths:
-        t.start()
-    for t in ths:
-        t.join()
-    elapsed = time.perf_counter() - t0
-
-    lat = sorted(x for l, _, _ in out.values() for x in l)
-    seen = [s for _, ss, _ in out.values() for s in ss]
-    errors = sum(e for _, _, e in out.values())
-
-    def pct(q: float) -> float:
-        return round(lat[min(len(lat) - 1, int(q * len(lat)))] * 1000, 2) if lat else -1
-
-    res = {
-        "label": a.label,
-        "conc": a.conc,
-        "rps": round(len(lat) / elapsed),
-        "p50_ms": pct(0.50),
-        "p95_ms": pct(0.95),
-        "p99_ms": pct(0.99),
-        "max_ms": round(lat[-1] * 1000, 1) if lat else -1,
-        "errors": errors,
-        "cfg_version": [min(s.get("cfg_version", 0) for s in seen), max(s.get("cfg_version", 0) for s in seen)] if seen else None,
-        "stream_seq": [min(s.get("stream_seq", 0) for s in seen), max(s.get("stream_seq", 0) for s in seen)] if seen else None,
-        "pool_gen": [min(s.get("pool_gen", 0) for s in seen), max(s.get("pool_gen", 0) for s in seen)] if seen else None,
-    }
-    print(json.dumps(res), flush=True)
-    sys.exit(1 if errors else 0)
+    """Run the load, print one JSON line, exit 1 if any request failed."""
+    args = _parse_args()
+    addr = (args.host, args.port)
+    clients = [Client(idx, addr, args.path) for idx in range(args.conc)]
+    elapsed = _run(clients, args.duration)
+    summary = summarize(args.label, args.conc, clients, elapsed)
+    sys.stdout.write(f"{json.dumps(summary)}\n")
+    sys.stdout.flush()
+    sys.exit(1 if summary["errors"] else 0)
 
 
 if __name__ == "__main__":
